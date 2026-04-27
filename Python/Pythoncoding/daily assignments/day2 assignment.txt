@@ -1,0 +1,155 @@
+1,Do the following in sequence and record the results in a single program Create a list with 5 different types of fruits. Print the list. Add two more fruits to the list, then remove one fruit from it. Print the updated list. Access the second and fourth fruits in the list. Print them. Slice the list to get the first three fruits and print the result. Find and print the length of your list. ?
+
+Code :
+
+fruits = ['Apple', 'Banana', 'Orange', 'Mango', 'Grapes']
+print("Original List:", fruits)
+fruits.append('Pineapple')
+fruits.append('Peach')
+fruits.remove('Mango')
+print("Updated List:", fruits)
+second_fruit = fruits[1]
+fourth_fruit = fruits[3]
+print("Second fruit:", second_fruit)
+print("Fourth fruit:", fourth_fruit)
+first_three_fruits = fruits[:3]
+print("First three fruits:", first_three_fruits)
+list_length = len(fruits)
+print("Length of the list:", list_length)
+output :
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\sequenceofoperations.py" 
+Original List: ['Apple', 'Banana', 'Orange', 'Mango', 'Grapes']
+Updated List: ['Apple', 'Banana', 'Orange', 'Grapes', 'Pineapple', 'Peach']
+Second fruit: Banana
+Fourth fruit: Grapes
+First three fruits: ['Apple', 'Banana', 'Orange']
+Length of the list: 6
+
+Process finished with exit code 0
+
+
+2. Do the following in sequence and record the results in a single program Create a tuple with the names of 3 different cities you’d like to visit. Print the tuple.: Access and print the first and last elements of the tuple.: Create another tuple with 2 more cities. Concatenate both tuples and print the result. Try changing one element of the tuple. What happens? Unpack the elements of the tuple into separate variables and print them.?
+
+
+Code:
+
+
+cities = ('Paris', 'Tokyo', 'New York')
+print("Original Tuple:", cities)
+first_city = cities[0]
+last_city = cities[-1]
+print("First city:", first_city)
+print("Last city:", last_city)
+more_cities = ('London', 'Sydney')
+all_cities = cities + more_cities
+print("Concatenated Tuple:", all_cities)
+try:
+    cities[1] = 'Berlin'  
+except TypeError as e:
+    print("Error:", e)
+city1, city2, city3 = cities
+print("Unpacked Cities:")
+print("City 1:", city1)
+print("City 2:", city2)
+print("City 3:", city3)
+
+output:
+
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\tuples.py" 
+Original Tuple: ('Paris', 'Tokyo', 'New York')
+First city: Paris
+Last city: New York
+Concatenated Tuple: ('Paris', 'Tokyo', 'New York', 'London', 'Sydney')
+Error: 'tuple' object does not support item assignment
+Unpacked Cities:
+City 1: Paris
+City 2: Tokyo
+City 3: New York
+
+Process finished with exit code 0
+
+
+
+3. Do the following in sequence and record the results in a single program Create a set of 5 unique colors. Print the set. Add a new color to the set, then try removing an existing color. Print the updated set. Create another set with 3 different colors. Find the intersection, union, and difference between both sets. Check if a specific color is in the set and print the result. Convert a list of fruits (with some duplicates) into a set and print the unique fruits
+
+
+
+code :
+
+
+
+colors = {'Red', 'Blue', 'Green', 'Yellow', 'Purple'}
+print("Original Set of Colors:", colors)
+colors.add('Orange')
+colors.remove('Yellow')
+print("Updated Set of Colors:", colors)
+more_colors = {'Pink', 'Cyan', 'Magenta'}
+intersection = colors.intersection(more_colors)
+union = colors.union(more_colors)
+difference = colors.difference(more_colors)
+print("Intersection of Sets:", intersection)
+print("Union of Sets:", union)
+print("Difference of Sets:", difference)
+color_check = 'Red'
+is_in_set = color_check in colors
+print(f"Is '{color_check}' in the set? {is_in_set}")
+fruits = ['Apple', 'Banana', 'Apple', 'Mango', 'Orange', 'Banana', 'Grapes']
+unique_fruits = set(fruits)
+print("Unique Fruits:", unique_fruits)
+
+output:
+
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\stepsinsequence.py" 
+Original Set of Colors: {'Yellow', 'Red', 'Purple', 'Blue', 'Green'}
+Updated Set of Colors: {'Orange', 'Red', 'Purple', 'Blue', 'Green'}
+Intersection of Sets: set()
+Union of Sets: {'Magenta', 'Orange', 'Cyan', 'Red', 'Purple', 'Blue', 'Pink', 'Green'}
+Difference of Sets: {'Red', 'Blue', 'Purple', 'Orange', 'Green'}
+Is 'Red' in the set? True
+Unique Fruits: {'Mango', 'Orange', 'Banana', 'Grapes', 'Apple'}
+
+Process finished with exit code 0
+
+
+
+4.  Do the following in sequence and record the results in a single program Create a dictionary with your name, age, and favorite hobby as keys, and provide appropriate values. Print the dictionary. Access and print the value associated with your name in the dictionary. Add a new key-value pair for your favorite food, then update the value for your favorite hobby. Print the updated dictionary. Print all the keys and all the values in the dictionary separately. Remove the age key-value pair from the dictionary. Print the dictionary to see the change. 
+
+
+
+Code:
+
+
+personal_info = {
+    'name': 'John',
+    'age': 25,
+    'favorite_hobby': 'Reading'
+}
+print("Original Dictionary:", personal_info)
+name_value = personal_info['name']
+print("Name in the Dictionary:", name_value)
+personal_info['favorite_food'] = 'Pizza'
+personal_info['favorite_hobby'] = 'Cycling'
+print("Updated Dictionary:", personal_info)
+keys = personal_info.keys()
+values = personal_info.values()
+print("All Keys:", keys)
+print("All Values:", values)
+personal_info.pop('age')  # Removes the 'age' entry
+print("Dictionary after removing 'age':", personal_info)
+
+
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\sequenceofoperations1.py" 
+Original Dictionary: {'name': 'John', 'age': 25, 'favorite_hobby': 'Reading'}
+Name in the Dictionary: John
+Updated Dictionary: {'name': 'John', 'age': 25, 'favorite_hobby': 'Cycling', 'favorite_food': 'Pizza'}
+All Keys: dict_keys(['name', 'age', 'favorite_hobby', 'favorite_food'])
+All Values: dict_values(['John', 25, 'Cycling', 'Pizza'])
+Dictionary after removing 'age': {'name': 'John', 'favorite_hobby': 'Cycling', 'favorite_food': 'Pizza'}
+
+Process finished with exit code 0
+

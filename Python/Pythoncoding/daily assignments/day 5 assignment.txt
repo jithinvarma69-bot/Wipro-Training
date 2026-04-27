@@ -1,0 +1,316 @@
+1.
+Write a program that asks the user to enter some text and saves it to a file called output.txt. Then, open the file and read its contents, printing them to the console. 
+
+Code:
+
+text = input("Enter some text: ")
+with open("output.txt", "w") as file:
+    file.write(text)
+with open("output.txt", "r") as file:
+    content = file.read()
+    print(content)
+
+
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\textandsave.py" 
+Enter some text: xyz
+xyz
+
+Process finished with exit code 0
+
+
+2.
+Write a program that reads a text file called sample.txt and counts the number of lines, words, and characters in the file. Print the counts. 
+
+Code:
+
+line_count = 0
+word_count = 0
+char_count = 0
+try:
+    with open("sample.txt", "r") as file:
+        for line in file:
+            line_count += 1
+            word_count += len(line.split())
+            char_count += len(line)
+    print("Lines:", line_count)
+    print("Words:", word_count)
+    print("Characters:", char_count)
+except FileNotFoundError:
+    print("Error: 'sample.txt' not found. Please ensure the file is in the correct location.")
+output:
+
+Lines: 3
+Words: 9
+Characters: 77
+
+3.
+Write a program that reads the contents of a file called source.txt and writes the contents to another file called destination.txt. Ensure that destination.txt is created if it doesn't exist. 
+
+Code:
+
+try:
+    with open("source.txt", "r") as source_file:
+        content = source_file.read()
+    with open("destination.txt", "w") as destination_file:
+        destination_file.write(content)
+    print("Contents of 'source.txt' have been written to 'destination.txt'.")
+except FileNotFoundError:
+    print("Error: 'source.txt' not found. Please ensure the file exists.")
+
+output:
+
+Contents of 'source.txt' have been written to 'destination.txt'.
+If source.txt doesn’t exist, the program will print:
+Error: 'source.txt' not found. Please ensure the file exists
+
+
+4.
+Write a program that appends a line of text to a file called log.txt. After appending the text, open the file and print its contents to verify that the text was added. 
+
+Code;
+
+
+text_to_append = "This is a new line added to the log."
+with open("log.txt", "a") as log_file:
+    log_file.write(text_to_append + "\n")
+with open("log.txt", "r") as log_file:
+    content = log_file.read()
+    print("Contents of 'log.txt':")
+    print(content)
+output:"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\appending.py" 
+Contents of 'log.txt':
+This is a new line added to the log.
+
+
+Process finished with exit code 0
+
+
+
+
+
+
+5.
+Write a program that asks the user to input a number in the form of a string. Use a try except block to convert the string to an integer. If a ValueError occurs (e.g., if the user inputs a non-numeric string), print an error message. Otherwise, print the integer. 
+
+
+Code:
+
+user_input = input("Please enter a number: ")
+try:
+    number = int(user_input)
+    print(f"The integer is: {number}")
+except ValueError:
+    print("Error: That's not a valid number!")
+
+
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\inputnum.py" 
+Please enter a number: 34
+The integer is: 34
+
+Process finished with exit code 0
+
+
+6.
+Write a program that tries to open a file specified by the user for reading. Use a try except block to handle FileNotFoundError if the file does not exist. If the file is successfully opened, print its contents; otherwise, print an error message. 
+
+Code:
+
+
+file_name = input("Please enter the file name: ")
+try:
+    with open(file_name, "r") as file:
+        content = file.read()
+        print("File contents:")
+        print(content)
+except FileNotFoundError:
+    print(f"Error: The file '{file_name}' was not found.")
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\usereading.py" 
+Please enter the file name: java
+Error: The file 'java' was not found.
+Process finished with exit code 0
+
+7.
+Write a program that asks the user to input two numbers and performs division. Use a try-except block to handle both ZeroDivisionError and ValueError. Print different messages for each exception. If no exception occurs, print the result of the division. 
+
+Code:
+
+try:
+    num1 = input("Enter the first number: ")
+    num2 = input("Enter the second number: ")
+    # Convert the inputs to integers
+    num1 = int(num1)
+    num2 = int(num2)
+    # Perform division
+    result = num1 / num2
+    print(f"The result of the division is: {result}")
+except ValueError:
+    print("Error: Please enter valid numbers.")
+except ZeroDivisionError:
+    print("Error: You cannot divide by zero.")
+
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\division.py" 
+Enter the first number: 343543
+Enter the second number: 5263
+The result of the division is: 65.27512825384761
+
+Process finished with exit code 0
+
+8.
+Write a program that takes a list of numbers and asks the user to input an index to access an element from the list. Use a try-except block to handle IndexError if the user enters an invalid index. Print the corresponding element if the index is valid; otherwise, print an error message. 
+
+
+Code:
+
+numbers = [10, 20, 30, 40, 50]
+try:
+    index = int(input("Enter the index to access an element from the list (0-4): "))
+    # Access the element at the specified index
+    element = numbers[index]
+    print(f"The element at index {index} is: {element}")
+except IndexError:
+    print("Error: The index you entered is out of range.")
+except ValueError:
+    print("Error: Please enter a valid integer.")
+    
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\indexerror.py" 
+Enter the index to access an element from the list (0-4): 5
+Error: The index you entered is out of range.
+
+Process finished with exit code 0
+
+9.
+Write a program that defines a custom exception class NegativeNumberError. The program should ask the user to input a positive number. If the user enters a negative number, raise the NegativeNumberError and handle it using a try-except block, printing an appropriate error message. 
+
+
+Code:
+
+class NegativeNumberError(Exception):
+    """Custom exception for negative numbers."""
+    pass
+try:
+    number = float(input("Please enter a positive number: "))
+    if number < 0:
+        raise NegativeNumberError("You entered a negative number, which is not allowed.")
+    print(f"You entered a positive number: {number}")
+except NegativeNumberError as e:
+    print(f"Error: {e}")
+except ValueError:
+    print("Error: Please enter a valid number.")
+
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\negativenumerror.py" 
+Please enter a positive number: 46
+You entered a positive number: 46.0
+
+Process finished with exit code 0
+
+10.
+Write a program that repeatedly asks the user to input two numbers and performs division. Use a try-except block inside a loop to handle ZeroDivisionError and ValueError. The program should continue until the user provides valid input and a valid division result is printed. 
+
+Code:
+
+while True:
+    try:
+        num1 = input("Enter the first number: ")
+        num2 = input("Enter the second number: ")
+        # Convert the inputs to integers
+        num1 = int(num1)
+        num2 = int(num2)
+        # Perform division
+        result = num1 / num2
+        print(f"The result of the division is: {result}")
+        break  # Exit the loop if no exception occurs
+    except ValueError:
+        print("Error: Please enter valid integers.")
+    except ZeroDivisionError:
+        print("Error: You cannot divide by zero. Please try again.")
+
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\valueeroor.py" 
+Enter the first number: 54
+Enter the second number: 76
+The result of the division is: 0.7105263157894737
+
+Process finished with exit code 0
+
+11.
+Write a program that tries to open and read a file. Use a try-except-finally block to handle potential exceptions like FileNotFoundError. Ensure that the finally block prints a message indicating that the program has completed, whether an exception occurred or not. 
+
+Code:
+
+file_name = input("Enter the file name to open: ")
+try:
+    with open(file_name, "r") as file:
+        content = file.read()
+        print("File content:")
+        print(content)
+except FileNotFoundError:
+    print(f"Error: The file '{file_name}' was not found.")
+finally:
+    print("Program execution completed.")
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\finally.py" 
+Enter the file name to open: f1
+Error: The file 'f1' was not found.
+Program execution completed.
+
+Process finished with exit code 0
+
+
+12.
+Write a program that defines a function to add two numbers. Use a try-except block to handle TypeError in case the function is called with non-numeric arguments (e.g., strings). Print an appropriate error message if the exception is caught. 
+
+Code:
+
+def add_numbers(a, b):
+    try:
+        result = a + b
+        return result
+    except TypeError:
+        print("Error: Both arguments must be numbers.")
+        return None
+print("Sum:", add_numbers(10, 5))
+print("Sum:", add_numbers(10, "five"))
+
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\typeerror.py" 
+Sum: 15
+Error: Both arguments must be numbers.
+Sum: None
+
+Process finished with exit code 0 
+
+13.
+Write a program that repeatedly asks the user to input an integer. Use a `try-except` block to handle `ValueError` in case the user enters a non-integer value. The program should keep asking for input until a valid integer is provided, and then print the integer. 
+
+Code:
+
+while True:
+    try:
+        user_input = int(input("Please enter an integer: "))
+        print(f"You entered the integer: {user_input}")
+        break
+    except ValueError:
+        print("That's not a valid integer. Please try again.")
+
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\valueerror.py" 
+Please enter an integer: 9
+You entered the integer: 9
+
+Process finished with exit code 0. 

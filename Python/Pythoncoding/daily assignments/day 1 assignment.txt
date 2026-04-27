@@ -1,0 +1,259 @@
+1.Write a program that asks the user for their age and checks if they are eligible to vote (18 years and older). Print a message based on their eligibility. 
+
+
+Code:
+
+age = int(input("Please enter your age: "))
+if age >= 18:
+    print("You are eligible to vote!")
+else:
+    print("Sorry, you are not eligible to vote.")
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\age.py" 
+Please enter your age: 21
+You are eligible to vote!
+
+Process finished with exit code 0
+
+2.Write a program that takes a year as input and checks if it is a leap year or not. Print the result. 
+
+Code:
+
+year = int(input("Enter a year: "))
+if (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0):
+    print(f"{year} is a leap year.")
+else:
+    print(f"{year} is not a leap year.")
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\leapyear.py" 
+Enter a year: 20004
+20004 is a leap year.
+
+Process finished with exit code 0
+
+
+
+3.Write a program that takes a number as input and checks if it is divisible by 5. Print a message if it is divisible or not. 
+
+Code:
+
+number = int(input("Enter a number: "))
+if number % 5 == 0:
+    print(f"{number} is divisible by 5.")
+else:
+    print(f"{number} is not divisible by 5.")
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\divisibleby5.py" 
+Enter a number: 45
+45 is divisible by 5.
+
+Process finished with exit code 0
+
+4.Write a program that takes a character as input and checks if it is a vowel or consonant. Print the result. 
+
+Code:
+
+char = input("Enter a character: ").lower()
+if char in 'aeiou':
+    print(f"{char} is a vowel.")
+else:
+    print(f"{char} is a consonant.")
+
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\vowelorconsonant.py" 
+Enter a character: hel
+hel is a consonant.
+
+Process finished with exit code 0
+
+
+5.Write a program that takes a password as input and checks if it is strong (at least 8 characters). Print a message based on the result. 
+
+
+Code:
+
+password = input("Enter your password: ")
+if len(password) >= 8:
+    print("Your password is strong.")
+else:
+    print("Your password is not strong. It must be at least 8 characters long.")
+
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\charecters.py" 
+Enter your password: yttrrftgs
+Your password is strong.
+
+Process finished with exit code 0
+
+
+6.Write a program that takes a grade (A, B, C, D, F) as input and uses match-case to print a message corresponding to the grade (e.g., "Excellent" for A, "Good" for B, etc.). 
+
+code:
+
+
+grade = input("Enter your grade (A, B, C, D, F): ").upper()
+match grade:
+    case 'A':
+        print("Excellent!")
+    case 'B':
+        print("Good!")
+    case 'C':
+        print("Average!")
+    case 'D':
+        print("Below Average!")
+    case 'F':
+        print("Fail!")
+    case _:
+        print("Invalid grade entered.")
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\grade.py" 
+Enter your grade (A, B, C, D, F): B
+Good!
+
+Process finished with exit code 0
+
+
+7.Write a program that takes a traffic light color (Red, Yellow, Green) as input and uses match-case to print the corresponding action (e.g., "Stop" for Red, "Wait" for Yellow, etc.). 
+
+
+code:
+
+color = input("Enter the traffic light color (Red, Yellow, Green): ").capitalize()
+match color:
+    case 'Red':
+        print("Stop!")
+    case 'Yellow':
+        print("Wait!")
+    case 'Green':
+        print("Go!")
+    case _:
+        print("Invalid color entered.")
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\trafficcolourlight.py" 
+Enter the traffic light color (Red, Yellow, Green): green
+Go!
+
+Process finished with exit code 0
+
+
+8.Write a program that takes a number as input and uses a for loop to calculate its factorial. Print the result. 
+
+Code:
+
+number = int(input("Enter a number: "))
+factorial = 1
+for i in range(1, number + 1):
+    factorial *= i
+print(f"The factorial of {number} is {factorial}.")
+output:
+
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\forloop.py" 
+Enter a number: 456
+The factorial of 456 is 150777392777717065903328562798297482932764849966301315324902295697797980802999492049275470580840593582700556154654997912467653672836190567363944536581444396786039028419417159553169852939652733499484374432647121409002713034716885273557660568294514238651304204026421026217797122437474581042706674997505548774529387552185264469304745879944335896334980134727576771262477699704913814778801164976379963316514713032786305083016847394455111607701177156363125206697642497352441989049637406799105387152093299654856194446887474831405921359722324720996553956200165400519069670468845686118517860926559421327845227712982865242890852011587912148558934925229259778865164753102371910801614732061965104129730561590839408147446252948841011789641706225763887234100676084552005497753764496546383864694159909979495432469993306110242973486330432796522331628915418533758582252153753291412897349335363154308911927972242304805109760000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.
+
+Process finished with exit code 0
+
+
+9.Write a program that uses a for loop to print all even numbers between 1 and 20. 
+
+code:
+
+for number in range(1, 21):
+    if number % 2 == 0:
+        print(number)
+
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\forlloopevennumbers.py" 
+2
+4
+6
+8
+10
+12
+14
+16
+18
+20
+
+Process finished with exit code 0
+
+
+10.Write a program that uses a while loop to create a countdown timer from 10 to 0. Print each number.
+
+Code:
+
+count = 10
+while count >= 0:
+    print(count)
+    count -= 1
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\whileloop.py" 
+10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+0
+
+Process finished with exit code 0
+
+
+11.
+ Write a program that uses a for loop to count the number of vowels in a given string. Print the count. 
+
+
+Code;
+
+string = input("Enter a string: ").lower()
+vowels = 'aeiou'
+count = 0
+for char in string:
+    if char in vowels:
+        count += 1
+print(f"The number of vowels in the string is: {count}")
+output:
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\forloopinstring.py" 
+Enter a string: 32
+The number of vowels in the string is: 0
+
+Process finished with exit code 0
+
+
+12.Write a program that uses a for loop to print numbers from 1 to 10, but skips printing the number 5 (use continue) and stops the loop if the number 8 is reached (use break). 
+
+Code:
+
+for number in range(1, 11):
+    if number == 5:
+        continue  # Skip printing the number 5
+    if number == 8:
+        break  # Stop the loop if the number is 8
+    print(number)
+
+output;
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\forllopprintnumbers.py" 
+1
+2
+3
+4
+6
+7
+
+Process finished with exit code 0

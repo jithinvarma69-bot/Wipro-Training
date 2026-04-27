@@ -1,0 +1,111 @@
+1.
+Use class, objects, constructors while coding Bank Account Management System You are tasked with creating a simple bank account management system in Python. Implement a class called BankAccount with the following specifications: The class should have private instance variables for account number, account holder name, and balance. Include a constructor to initialize these variables. Implement getter and setter methods for each instance variable to ensure encapsulation. Implement methods to deposit and withdraw money from the account. Ensure that the withdraw method checks if the account has sufficient balance before allowing withdrawal. Write a Python program to demonstrate the functionality of the BankAccount class by creating instances, depositing and withdrawing money, and displaying account information. 
+
+
+Code:
+
+class BankAccount:
+    def __init__(self, account_number, account_holder_name, balance=0.0):
+        self.__account_number = account_number
+        self.__account_holder_name = account_holder_name
+        self.__balance = balance
+    def get_account_number(self):
+        return self.__account_number
+    def set_account_number(self, account_number):
+        self.__account_number = account_number
+    def get_account_holder_name(self):
+        return self.__account_holder_name
+    def set_account_holder_name(self, account_holder_name):
+        self.__account_holder_name = account_holder_name
+    def get_balance(self):
+        return self.__balance
+    def set_balance(self, balance):
+        self.__balance = balance
+    def deposit(self, amount):
+        if amount > 0:
+            self.__balance += amount
+    def withdraw(self, amount):
+        if amount <= self.__balance:
+            self.__balance -= amount
+    def display_account_info(self):
+        print(f"Account Number: {self.__account_number}")
+        print(f"Account Holder: {self.__account_holder_name}")
+        print(f"Balance: {self.__balance}")
+if __name__ == "__main__":
+    account1 = BankAccount(account_number="123456789", account_holder_name="John Doe", balance=1000.0)
+    account1.display_account_info()
+    account1.deposit(500.0)
+    account1.withdraw(300.0)
+    account1.withdraw(2000.0)
+    account1.display_account_info()
+
+output:
+
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\bankaccountmanagementsystem.py" 
+Account Number: 123456789
+Account Holder: John Doe
+Balance: 1000.0
+Account Number: 123456789
+Account Holder: John Doe
+Balance: 1200.0
+
+Process finished with exit code 0
+
+
+2.
+Employee Management System You are developing an employee management system for a company. Implement a class called Employee with the following specifications: The class should have private instance variables for employee ID, name, and salary. Include a constructor to initialize these variables. Implement getter and setter methods for each instance variable. Implement a method to display employee information. Implement a method to give a salary hike to an employee. The method should accept a percentage value by which the salary will be increased. Write a Python program to demonstrate the functionality of the Employee class by creating instances, displaying employee information, giving salary hikes, and displaying updated employee information. 
+
+
+
+Code:
+
+class Employee:
+    def __init__(self, employee_id, name, salary):
+        self.__employee_id = employee_id
+        self.__name = name
+        self.__salary = salary
+    def get_employee_id(self):
+        return self.__employee_id
+    def set_employee_id(self, employee_id):
+        self.__employee_id = employee_id
+    def get_name(self):
+        return self.__name
+    def set_name(self, name):
+        self.__name = name
+    def get_salary(self):
+        return self.__salary
+    def set_salary(self, salary):
+        self.__salary = salary
+    def display_employee_info(self):
+        print(f"Employee ID: {self.__employee_id}")
+        print(f"Employee Name: {self.__name}")
+        print(f"Salary: {self.__salary}")
+    def give_salary_hike(self, percentage):
+        if percentage > 0:
+            hike_amount = (self.__salary * percentage) / 100
+            self.__salary += hike_amount
+        else:
+            print("Invalid percentage. Salary hike must be positive.")
+if __name__ == "__main__":
+    employee1 = Employee(employee_id="E123", name="Alice", salary=50000.0)
+    employee1.display_employee_info()
+    employee1.give_salary_hike(10)
+    employee1.display_employee_info()
+    employee1.give_salary_hike(-5)
+
+output:
+
+
+"C:\Wipro Training\Python\Pythoncoding\.venv\Scripts\python.exe" "C:\Wipro Training\Python\Pythoncoding\daily assignments\emplyeemanagementsystem.py" 
+Employee ID: E123
+Employee Name: Alice
+Salary: 50000.0
+Employee ID: E123
+Employee Name: Alice
+Salary: 55000.0
+Invalid percentage. Salary hike must be positive.
+
+Process finished with exit code 0
+
+
