@@ -1,0 +1,112 @@
+1.
+Basic Test Case Write a unittest class TestMath with one test method that checks if 2 + 3 equals 5. 
+
+
+code:
+
+import unittest
+class TestMath(unittest.TestCase):
+    def test_addition(self):
+        self.assertEqual(2 + 3, 5)
+if __name__ == '__main__':
+    unittest.main()
+Output:
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+OK
+
+2.
+
+Setup and Teardown Create a test class that uses setUp() to initialize a list [1, 2, 3] and tearDown() to print "Test completed". Verify that the list length is 3 inside your test method. 
+
+Code:
+
+class TestListMethods(unittest.TestCase):
+    
+    def setUp(self):
+        self.test_list = [1, 2, 3]
+    def test_list_length(self):
+        self.assertEqual(len(self.test_list), 3)
+    def tearDown(self):
+        print("Test completed")
+if __name__ == '__main__':
+    unittest.main()
+
+
+output:
+
+Test completed
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+OK
+3.
+Multiple Assertions Write a test class TestStringMethods with methods to test: "hello".upper() equals "HELLO" "hello".isupper() returns False 
+
+code:
+
+import unittest
+class TestStringMethods(unittest.TestCase):
+    def test_upper(self):
+        self.assertEqual("hello".upper(), "HELLO")
+    def test_isupper(self):
+        self.assertFalse("hello".isupper())
+if __name__ == '__main__':
+    unittest.main()
+Output:
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+OK
+
+4.
+Exception Testing Use assertRaises to verify that dividing by zero (10 / 0) raises a ZeroDivisionError. 
+
+Code:
+
+import unittest
+class TestMathOperations(unittest.TestCase):
+    def test_divide_by_zero(self):
+        with self.assertRaises(ZeroDivisionError):
+            result = 10 / 0
+if __name__ == '__main__':
+    unittest.main()
+Output:
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+OK
+
+
+5.
+Test Suite Execution Create two test classes (TestAdd and TestSubtract) and combine them into a single test suite using unittest.TestSuite. Run the suite using unittest.TextTestRunner(). 
+
+Code:
+
+
+import unittest
+class TestAdd(unittest.TestCase):
+    
+    def test_addition(self):
+        self.assertEqual(2 + 3, 5)
+class TestSubtract(unittest.TestCase):
+    
+    def test_subtraction(self):
+        self.assertEqual(5 - 3, 2)
+
+def suite():
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(TestAdd))
+    suite.addTest(unittest.makeSuite(TestSubtract))
+    return suite
+if __name__ == '__main__':
+    
+    runner = unittest.TextTestRunner()
+    runner.run(suite())
+Output:
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+OK
+

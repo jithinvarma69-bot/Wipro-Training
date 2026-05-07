@@ -1,0 +1,185 @@
+Assignment: Amazon Automation using Selenium 
+
+Exercise 1: Navigation and Title Verification Write a script that launches a browser and navigates to the Amazon home page. Once loaded, capture the page title and use an assertion to verify that it contains the word "Amazon". After the check is complete, navigate to the "Mobiles" category page and go back to the home page using browser navigation methods. 
+
+Code:
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import time
+
+driver = webdriver.Chrome()
+
+driver.get("https://www.amazon.in")
+
+time.sleep(3)
+
+title = driver.title
+assert "Amazon" in title
+
+mobiles_link = driver.find_element(By.LINK_TEXT, "Mobiles")
+mobiles_link.click()
+
+time.sleep(3)
+
+driver.back()
+
+time.sleep(2)
+
+driver.refresh()
+
+time.sleep(2)
+
+driver.quit()
+
+
+output:
+
+Process finished with exit code 0
+
+
+Exercise 2: Basic Locators and Search Identify the Amazon search bar using its `id` and the search button using its `xpath`. Type "Wireless Headphones" into the search bar and click the search button. Verify that the results page displayed contains a specific header or text indicating that results for your search are being shown. 
+
+
+Code:
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import time
+
+driver = webdriver.Chrome()
+
+driver.get("https://www.amazon.in")
+
+search_box = driver.find_element(By.ID, "twotabsearchtextbox")
+search_box.send_keys("Wireless Headphones")
+
+search_button = driver.find_element(By.XPATH, "//input[@id='nav-search-submit-button']")
+search_button.click()
+
+time.sleep(3)
+
+result_text = driver.find_element(By.XPATH, "//span[contains(text(),'Wireless Headphones')]").text
+
+assert "Wireless Headphones" in result_text
+
+driver.quit()
+
+
+output:
+
+Process finished with exit code 0
+
+
+Exercise 3: Implementing Implicit and Explicit Waits Create a test that searches for a specific laptop model. Implement an Implicit Wait at the driver level to handle general loading. Then, use an Explicit Wait (`WebDriverWait`) with an `ExpectedCondition` to wait specifically for the "Results" grid or a specific product image to become visible before attempting to click the first result. 
+
+
+Code:
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+driver = webdriver.Chrome()
+
+driver.implicitly_wait(10)
+
+driver.get("https://www.amazon.in")
+
+search_box = driver.find_element(By.ID, "twotabsearchtextbox")
+search_box.send_keys("Dell laptop")
+
+search_box.submit()
+
+wait = WebDriverWait(driver, 15)
+
+first_result = wait.until(
+    EC.visibility_of_element_located((By.CSS_SELECTOR, "div.s-main-slot"))
+)
+
+product = driver.find_element(By.CSS_SELECTOR, "div.s-main-slot h2")
+product.click()
+
+driver.quit()
+
+
+output:
+
+Process finished with exit code 0
+
+
+Exercise 4: Advanced Locators (CSS Selectors & Links) Navigate to the Amazon footer section. Use CSS Selectors to identify and click on the "About Us" link. On the following page, find a specific element using its `name` or `link_text` and print its text content to the console. 
+
+
+Code:
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import time
+
+driver = webdriver.Chrome()
+
+driver.get("https://www.amazon.in")
+
+driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+time.sleep(3)
+
+about_link = driver.find_element(By.LINK_TEXT, "About Us")
+about_link.click()
+
+time.sleep(3)
+
+header_text = driver.find_element(By.TAG_NAME, "h1").text
+print(header_text)
+
+driver.quit()
+
+output:
+
+Process finished with exit code 0
+
+
+Exercise 5: Element Interaction and Synchronization Automate the process of filtering search results. Search for "Smart Watches," then locate the "Brand" filter in the left-hand sidebar. Click on a specific brand checkbox (e.g., "Samsung" or "Apple"). Because filters refresh the page asynchronously, implement a wait strategy to ensure the page has updated before counting how many products are displayed on the first page. 
+
+Code:
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+driver = webdriver.Chrome()
+wait = WebDriverWait(driver, 15)
+
+driver.get("https://www.amazon.in")
+
+search_box = driver.find_element(By.ID, "twotabsearchtextbox")
+search_box.send_keys("Smart Watches")
+search_box.submit()
+
+wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.s-main-slot")))
+
+brand_filter = wait.until(
+    EC.element_to_be_clickable((By.XPATH, "//span[text()='Samsung']/preceding::input[1]"))
+)
+brand_filter.click()
+
+wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.s-main-slot")))
+
+products = driver.find_elements(By.CSS_SELECTOR, "div.s-main-slot div[data-component-type='s-search-result']")
+
+print("Total products on first page:", len(products))
+
+driver.quit()
+
+
+
+
+output:
+
+
+Total products on first page: 16
+Process finished with exit code 0

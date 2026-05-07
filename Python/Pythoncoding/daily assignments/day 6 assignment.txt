@@ -1,0 +1,144 @@
+Using Bookstore swagger API perform the following requests GET, POST, PUT, PATCH, DELETE rite test scripts for the same. Save the responses and capture the test results 
+
+
+ans.:
+
+Bookstore Swagger API – CRUD Operations with Test Scripts 
+
+1. GET Request – Fetch All Books
+Endpoint:
+GET /books
+Test Script:
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+pm.test("Response is in JSON format", function () {
+    pm.response.to.be.json;
+});
+
+pm.test("Response is an array", function () {
+    let jsonData = pm.response.json();
+    pm.expect(jsonData).to.be.an("array");
+});
+
+Response (Sample):
+[
+  {
+    "id": 1,
+    "title": "Book One",
+    "author": "Author A",
+    "price": 300
+  }
+]
+
+2. POST Request – Create a New Book
+Endpoint:
+POST /books
+Request Body:
+{
+  "title": "Atomic Habits",
+  "author": "James Clear",
+  "price": 499
+}
+Test Script:
+pm.test("Status code is 201", function () {
+    pm.response.to.have.status(201);
+});
+pm.test("Book created successfully", function () {
+    let jsonData = pm.response.json();
+    pm.expect(jsonData.title).to.eql("Atomic Habits");
+});
+// Save ID for further requests
+pm.environment.set("book_id", pm.response.json().id);
+Response (Sample):
+{
+  "id": 101,
+  "title": "Atomic Habits",
+  "author": "James Clear",
+  "price": 499
+}
+
+3. PUT Request – Update Entire Book
+Endpoint:
+PUT /books/{{book_id}}
+Request Body:
+{
+  "title": "Atomic Habits Updated",
+  "author": "James Clear",
+  "price": 550
+}
+Test Script:
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+pm.test("Book updated successfully", function () {
+    let jsonData = pm.response.json();
+    pm.expect(jsonData.title).to.eql("Atomic Habits Updated");
+});
+Response (Sample):
+{
+  "id": 101,
+  "title": "Atomic Habits Updated",
+  "author": "James Clear",
+  "price": 550
+}
+
+4. PATCH Request – Partial Update
+Endpoint:
+PATCH /books/{{book_id}}
+Request Body:
+{
+  "price": 600
+}
+Test Script:
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+pm.test("Price updated successfully", function () {
+    let jsonData = pm.response.json();
+    pm.expect(jsonData.price).to.eql(600);
+});
+Response (Sample):
+{
+  "id": 101,
+  "title": "Atomic Habits Updated",
+  "author": "James Clear",
+  "price": 600
+}
+
+5. DELETE Request – Delete Book
+Endpoint:
+DELETE /books/{{book_id}}
+Test Script:
+pm.test("Status code is 200 or 204", function () {
+    pm.expect(pm.response.code).to.be.oneOf([200, 204]);
+});
+Response (Sample):
+No Content (204)
+
+6. Saving Responses
+Script to Save Response:
+pm.environment.set("last_response", pm.response.text());
+
+Capturing Test Results 
+
+Expected Output:
+Newman v5.3.0
+====================
+> bookstore_collection
+    GET /books
+    GET /books/{id}
+    POST /books
+    PUT /books/{id}
+    PATCH /books/{id}
+    DELETE /books/{id}
+====================
+Total Run Time: 2.5 minutes
+Total Requests: 6
+Total Tests: 18
+Tests Passed: 18
+Tests Failed: 0
+====================
+> html Report generated at /path/to/report.html
+

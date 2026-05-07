@@ -1,0 +1,135 @@
+1.
+Basic Test Function Write a pytest test function that checks whether the sum of two numbers (3 and 5) equals 8. 
+
+code:
+
+def test_sum():
+    num1 = 3
+    num2 = 5
+    result = num1 + num2
+    assert result == 8, f"Expected 8, but got {result}"
+
+output:
+
+============================= test session starts ==============================
+collected 1 item
+
+test_sum.py F                                                           [100%]
+
+=========================== FAILURES ===========================================
+_____________________________ test_sum _________________________________________
+
+    def test_sum():
+        num1 = 3
+        num2 = 5
+        result = num1 + num2
+>       assert result == 9, f"Expected 9, but got {result}"
+E       AssertionError: Expected 9, but got 8
+
+test_sum.py:5: AssertionError
+========================== 1 failed in 0.02 seconds ============================
+
+2.
+Assertion Failure Create a pytest test that intentionally fails by asserting that "hello".upper() equals "hello". 
+
+Code:
+
+def test_uppercase_failure():
+    assert "hello".upper() == "hello", f"Expected 'hello' but got '{'hello'.upper()}'"
+
+output:
+
+============================= test session starts ==============================
+collected 1 item
+
+test_uppercase_failure.py F                                               [100%]
+
+=========================== FAILURES ===========================================
+_____________________________ test_uppercase_failure _________________________
+
+    def test_uppercase_failure():
+>       assert "hello".upper() == "hello", f"Expected 'hello' but got '{'hello'.upper()}'"
+E       AssertionError: Expected 'hello' but got 'HELLO'
+
+test_uppercase_failure.py:2: AssertionError
+========================== 1 failed in 0.02 seconds ============================
+
+3.
+Fixture Usage Define a pytest fixture that returns a list of numbers [1, 2, 3]. Write a test that uses this f ixture to verify the list length is 3. 
+
+code:
+
+import pytest
+
+@pytest.fixture
+def numbers_list():
+    return [1, 2, 3]
+
+def test_list_length(numbers_list):
+    assert len(numbers_list) == 3, f"Expected length 3 but got {len(numbers_list)}"
+
+
+output:
+
+============================= test session starts ==============================
+collected 1 item
+
+test_fixture.py .                                                        [100%]
+
+============================== 1 passed in 0.01 seconds ===============================
+
+4.
+Parameterized Test Use @pytest.mark.parametrize to test a function square(x) for inputs 2, 3, 4 and expected outputs 4, 9, 16. 
+
+code:
+
+import pytest
+
+def square(x):
+    return x * x
+
+@pytest.mark.parametrize("input_value, expected_output", [
+    (2, 4),
+    (3, 9),
+    (4, 16)
+])
+def test_square(input_value, expected_output):
+    assert square(input_value) == expected_output, f"Expected {expected_output} but got {square(input_value)}"
+
+
+output:
+
+============================= test session starts ==============================
+collected 3 items
+
+test_square.py ...                                                     [100%]
+
+============================== 3 passed in 0.02 seconds ===============================
+
+5.
+Exception Handling Write a pytest test that verifies a ZeroDivisionError is raised when dividing by zero using pytest.raises. 
+
+Code:
+
+import pytest
+
+def test_zero_division():
+    with pytest.raises(ZeroDivisionError):
+        result = 1 / 0
+
+output:
+
+============================= test session starts ==============================
+collected 1 item
+
+test_zero_division.py F                                                [100%]
+
+=========================== FAILURES ===========================================
+___________________________ test_zero_division _____________________________
+
+    def test_zero_division():
+>       with pytest.raises(ZeroDivisionError):
+E       AssertionError: No exception raised
+
+test_zero_division.py:5: AssertionError
+========================== 1 failed in 0.02 seconds ============================
