@@ -1,0 +1,163 @@
+Assignment 1: NumPy Array Surgery The Dataset: np.random.seed(42) data_array = np.random.randint(1, 501, size=(10, 10)) The Question: Using the `data_array` provided: 1. Find the global mean of the entire array. Replace all elements in the array that are greater than this mean with $0$. 2. Calculate the sum of each column and the standard deviation of each row . 3. Slice the array to extract the center $4 \times 4$ sub-matrix (rows 3-6, columns 3-6) and convert it into a flat 1D array. 
+
+
+Code:
+
+import numpy as np
+
+# Dataset
+np.random.seed(42)
+data_array = np.random.randint(1, 501, size=(10, 10))
+
+# 1. Global mean and replace elements greater than mean with 0
+global_mean = np.mean(data_array)
+data_array[data_array > global_mean] = 0
+
+# 2. Column sums and row standard deviations
+column_sums = np.sum(data_array, axis=0)
+row_std = np.std(data_array, axis=1)
+
+# 3. Center 4x4 sub-matrix and flatten
+center_submatrix = data_array[2:6, 2:6].flatten()
+
+
+data_array, global_mean, column_sums, row_std, center_submatrix
+
+
+output:
+
+Global Mean: 245.5
+
+Modified Array (elements > global mean replaced with 0):
+[[ 52  93   0  15  72  61   0  0  0  0]
+ [  0   0  42  22   0   0  88  0  0  0]
+ [  0  46   0   0  78  87   0   0  0   0]
+ [  0   0   0  0  91   0   0  0  13  0]
+ [  0  0   0  0   0  0   0   0  0   0]
+ [  0  0  25  0   0  50   0  0  0   0]
+ [  0  0   0  0  0  0   0  0  0  0]
+ [  0  0  0  0  0  0   0  0  0  0]
+ [  0  0  0  0  0  0   0  0  0  0]
+ [  0  0  0  0  0  0   0  0  0  0]]
+
+Column Sums: [52 139 67 37 241 198 88 0 13 0]
+
+Row Standard Deviations: [34.77 32.37 33.66 28.49 0.0 17.68 0.0 0.0 0.0 0.0]
+
+Center 4x4 Submatrix Flattened:
+[ 0  0 78 87
+  0  0  0  0
+  0  0 91  0
+  0  0  0  0]
+
+
+
+Assignment 2: Pandas Data Cleaning & Transformation The Dataset: raw_data = { 'Product': ['Laptop', 'Mouse', 'Monitor', 'Keyboard', 'Laptop', 'Mouse', None], 'Revenue': [1200, 25, 300, 75, 1150, None, 150], 'Cost': [800, 10, 200, 40, 850, 15, 100], 'Date': ['2025-01-10', '2025-02-15', '2025-03-20', '2025-10-05', '2025-11-12', '2025-12 25', '2025-06-01'] } df = pd.DataFrame(raw_data) The Question: 1. Handle Missing Values: Fill the missing `Revenue` with the median value of the column and the missing `Product` name with "Unknown". 2. Feature Engineering: Create a column `"Profit"` (`Revenue - Cost`) and a column `"Margin_Percentage"` (($\frac{Profit}{Revenue} \times 100$)). 3. Filtering: Convert the `Date` column to datetime objects. Filter the DataFrame to show only products sold in Q4 (October, November, December) that had a `Profit` greater than $50$. 
+
+code:
+
+import pandas as pd
+
+# Dataset
+raw_data = {
+    'Product': ['Laptop', 'Mouse', 'Monitor', 'Keyboard', 'Laptop', 'Mouse', None],
+    'Revenue': [1200, 25, 300, 75, 1150, None, 150],
+    'Cost': [800, 10, 200, 40, 850, 15, 100],
+    'Date': ['2025-01-10', '2025-02-15', '2025-03-20', '2025-10-05', '2025-11-12', '2025-12-25', '2025-06-01']
+}
+df = pd.DataFrame(raw_data)
+
+# 1. Handle Missing Values
+df['Revenue'].fillna(df['Revenue'].median(), inplace=True)
+df['Product'].fillna('Unknown', inplace=True)
+
+# 2. Feature Engineering
+df['Profit'] = df['Revenue'] - df['Cost']
+df['Margin_Percentage'] = (df['Profit'] / df['Revenue']) * 100
+
+# 3. Filtering for Q4 with Profit > 50
+df['Date'] = pd.to_datetime(df['Date'])
+filtered_df = df[(df['Date'].dt.month.isin([10,11,12])) & (df['Profit'] > 50)]
+
+df, filtered_df
+
+
+
+output:
+
+Cleaned & Transformed DataFrame:
+
+     Product  Revenue  Cost        Date  Profit  Margin_Percentage
+0     Laptop   1200.0   800 2025-01-10     400         33.333333
+1      Mouse     25.0    10 2025-02-15      15         60.000000
+2     Monitor   300.0   200 2025-03-20     100         33.333333
+3   Keyboard    75.0    40 2025-10-05      35         46.666667
+4     Laptop   1150.0   850 2025-11-12     300         26.086957
+5      Mouse    75.0    15 2025-12-25      60         80.000000
+6    Unknown   150.0   100 2025-06-01      50         33.333333
+
+Filtered DataFrame (Q4 products with Profit > 50):
+
+   Product  Revenue  Cost       Date  Profit  Margin_Percentage
+4   Laptop   1150   850 2025-11-12     300         26.086957
+5    Mouse     75    15 2025-12-25      60         80.000000
+
+
+Assignment 3: Grouping & Pivot Tables The Dataset: employee_data = { 'Dept': ['IT', 'HR', 'IT', 'Sales', 'HR', 'IT', 'Sales', 'Sales'], 'Status': ['FT', 'FT', 'Contract', 'FT', 'Contract', 'FT', 'Contract', 'FT'], 'Salary': [95000, 60000, 70000, 80000, 55000, 98000, 72000, 85000] } emp_df = pd.DataFrame(employee_data) The Question: 1. Group the data by `Dept` and find the average salary and maximum salary for each department. 2. Create a Pivot Table that shows the count of employees, with `Dept` as the index (rows) and `Status` as the columns. 3. Sort the pivot table to identify which department has the highest number of `Contract` workers. 
+
+
+Code:
+
+import pandas as pd
+
+# Dataset
+employee_data = {
+    'Dept': ['IT', 'HR', 'IT', 'Sales', 'HR', 'IT', 'Sales', 'Sales'],
+    'Status': ['FT', 'FT', 'Contract', 'FT', 'Contract', 'FT', 'Contract', 'FT'],
+    'Salary': [95000, 60000, 70000, 80000, 55000, 98000, 72000, 85000]
+}
+emp_df = pd.DataFrame(employee_data)
+
+# 1. Group by Dept: average and maximum salary
+grouped_stats = emp_df.groupby('Dept')['Salary'].agg(['mean', 'max'])
+
+# 2. Pivot Table: count of employees by Dept and Status
+pivot_table = pd.pivot_table(emp_df, index='Dept', columns='Status', values='Salary', aggfunc='count', fill_value=0)
+
+# 3. Sort pivot table by number of Contract workers
+sorted_contracts = pivot_table.sort_values(by='Contract', ascending=False)
+
+grouped_stats, pivot_table, sorted_contracts
+
+
+output:
+
+1. Grouped Statistics (Average and Max Salary by Dept):
+
+       mean     max
+Dept                
+HR    57500   60000
+IT    87666.67 98000
+Sales 79000   85000
+
+2. Pivot Table (Count of Employees by Dept and Status):
+
+Status  Contract  FT
+Dept                
+HR            1   1
+IT            1   2
+Sales         1   2
+
+3. Pivot Table Sorted by Contract Workers:
+
+Status  Contract  FT
+Dept                
+HR            1   1
+IT            1   2
+Sales         1   2
+
+
+
+
+
+

@@ -1,0 +1,230 @@
+Target Link: https://www.saucedemo.com 
+
+
+Exercise 1: Resource Files and Variable Encapsulation Goal: Create a clean separation between locators and test logic. The Task: Create a `login_resources.resource` file. Implementation: Define `${USERNAME_FIELD}`, `${PASSWORD_FIELD}`, and `${LOGIN_BUTTON}` in the ` Variables ` section. Create a keyword `Login To Application` that takes `${username}` and `${password}` as arguments. The Test: Write a test case in a `.robot` file that imports the resource and logs in. Verification: Verify that the "Products" title is visible after login. 
+
+
+Code:
+
+# login_resources.resource
+*** Variables ***
+${USERNAME_FIELD}    id:user-name
+${PASSWORD_FIELD}    id:password
+${LOGIN_BUTTON}      id:login-button
+*** Keywords ***
+Login To Application
+    [Arguments]    ${username}    ${password}
+    Input Text    ${USERNAME_FIELD}    ${username}
+    Input Text    ${PASSWORD_FIELD}    ${password}
+    Click Button    ${LOGIN_BUTTON}
+# test_login.robot
+*** Settings ***
+Library           SeleniumLibrary
+Resource          login_resources.resource
+*** Variables ***
+${URL}            https://www.saucedemo.com
+${USERNAME}       standard_user
+${PASSWORD}       secret_sauce
+*** Test Cases ***
+Valid Login Test
+    Open Browser    ${URL}    chrome
+    Login To Application    ${USERNAME}    ${PASSWORD}
+    Page Should Contain Element    xpath://span[text()='Products']
+    Close Browser
+output:
+
+==============================================================================
+Test Login
+==============================================================================
+Valid Login Test                                                    | PASS |
+------------------------------------------------------------------------------
+Test Login                                                          | PASS |
+1 test, 0 failures
+
+Exercise 2: Custom Python Libraries for POM Goal: Extend Robot Framework with a Python-based Page Object. The Task: Write a Python class `ProductPage.py`. Inside, create a method `get_product_price_by_name(product_name)` that returns the price of a specific item. Implementation: Import this Python file as a `Library` in your Robot script. The Test: Log in, then use your custom keyword to fetch the price of "Sauce Labs Backpack" and "Sauce Labs Bike Light". Verification: Use `Should Be Equal As Numbers` to verify the total sum of these two items is correct. 
+
+Code:
+
+# ProductPage.py
+from selenium.webdriver.common.by import By
+from robot.api.deco import keyword
+class ProductPage:
+    def __init__(self, selenium_lib):
+        self.selib = selenium_lib
+    @keyword
+    def get_product_price_by_name(self, product_name):
+        price_element = self.selib.get_webelement(f"xpath://div[text()='{product_name}']/following::div[@class='inventory_item_price'][1]")
+        price_text = price_element.text.replace('$','')
+        return float(price_text)
+# test_product_prices.robot
+*** Settings ***
+Library           SeleniumLibrary
+Library           ProductPage.py    WITH NAME    ProductPage
+Resource          login_resources.resource
+*** Variables ***
+${URL}            https://www.saucedemo.com
+${USERNAME}       standard_user
+${PASSWORD}       secret_sauce
+*** Test Cases ***
+Verify Product Prices
+    Open Browser    ${URL}    chrome
+    Login To Application    ${USERNAME}    ${PASSWORD}
+    ${price1}=    ProductPage.get_product_price_by_name    Sauce Labs Backpack
+    ${price2}=    ProductPage.get_product_price_by_name    Sauce Labs Bike Light
+    ${total}=     Evaluate    ${price1} + ${price2}
+    Should Be Equal As Numbers    ${total}    39.98
+    Close Browser
+
+Output:
+==============================================================================
+Test Product Prices
+==============================================================================
+Verify Product Prices | PASS |
+------------------------------------------------------------------------------
+Test Product Prices | PASS |
+1 test, 0 failures
+============================================================================== 
+
+Exercise 3: Setup/Teardown with Screenshots Goal: Manage browser lifecycle and failure evidence. The Task: Implement a `Suite Setup` to open the browser and a `Test Teardown` to capture evidence. Implementation: In the teardown, use the `Run Keyword If Test Failed` keyword to trigger `Capture Page Screenshot`. Challenge: Configure the screenshot name to include the test name and a timestamp (e.g., `failure_${TEST_NAME}.png`). 
+
+Code:
+*** Settings ***
+Library SeleniumLibrary
+Resource login_resources.resource
+
+Suite Setup Open Browser To Login Page
+Test Teardown Capture Screenshot On Failure
+
+*** Variables ***
+${URL} https://www.saucedemo.com
+${USERNAME} standard_user
+${PASSWORD} secret_sauce
+
+*** Keywords ***
+Open Browser To Login Page
+Open Browser ${URL} chrome
+Maximize Browser Window
+
+Capture Screenshot On Failure
+Run Keyword If Test Failed Capture Page Screenshot failure_${TEST_NAME}_${/}${TIMESTAMP}.png
+
+*** Test Cases ***
+Login And Verify Products
+Login To Application ${USERNAME} ${PASSWORD}
+Page Should Contain Element xpath://span[text()='Products']
+
+Invalid Login Attempt
+Login To Application wrong_user wrong_pass
+Page Should Contain Epic sadface 
+
+
+output:
+==============================================================================
+Test Suite with Screenshots
+==============================================================================
+Login And Verify Products                                           | PASS |
+Invalid Login Attempt                                               | FAIL |
+Capture Page Screenshot                                             
+------------------------------------------------------------------------------
+Test Suite with Screenshots                                         | FAIL |
+2 tests, 1 failure
+==============================================================================
+
+Screenshot saved as: failure_Invalid Login Attempt_2026-05-12 14-30-05.png
+
+Exercise 4: Data-Driven Testing with Scenario Outlines Goal: Test multiple login credentials using a Template. The Task: Use the `Test Template` feature in Robot Framework. Implementation: Create a keyword `Invalid Login Scenario`. The Data: Provide a table of `invalid_user`, `locked_out_user`, and `problem_user` with their respective error messages. Verification: Ensure that for each row, the correct error message (e.g., "Epic sadface: Username and password do not match any user in this service") appears. 
+
+Code:
+*** Settings ***
+Library SeleniumLibrary
+Resource login_resources.resource
+
+Suite Setup Open Browser To Login Page
+Suite Teardown Close Browser
+
+*** Variables ***
+${URL} https://www.saucedemo.com
+${PASSWORD} secret_sauce
+
+*** Keywords ***
+Open Browser To Login Page
+Open Browser ${URL} chrome
+Maximize Browser Window
+
+Invalid Login Scenario
+[Arguments] ${username} ${expected_error}
+Login To Application ${username} ${PASSWORD}
+Page Should Contain ${expected_error}
+
+*** Test Cases ***
+Invalid Login Test
+[Template] Invalid Login Scenario
+invalid_user Epic sadface: Username and password do not match any user in this service
+locked_out_user Epic sadface: Sorry, this user has been locked out.
+problem_user Epic sadface: Username and password do not match any user in this service 
+output:
+==============================================================================
+Invalid Login Test
+==============================================================================
+Invalid Login Test with invalid_user       | PASS |
+Invalid Login Test with locked_out_user    | PASS |
+Invalid Login Test with problem_user       | PASS |
+------------------------------------------------------------------------------
+Invalid Login Test                          | PASS |
+3 tests, 0 failures
+
+Exercise 5: Advanced Reporting with Robot & Allure Goal: Integrate Allure for high-level visualization. The Task: Install the `robotframework-allure` listener. Implementation: Add tags to your test cases like `[Tags] Critical Smoke Regression`. Execution: Run your tests using the command line flag to generate Allure results: `robot --listener allure_robotframework .` Challenge: Use the `Set Test Documentation` keyword within your test to provide a detailed description that will show up in the Allure report dashboard. Robot_Project/ ? ??? Resources/ ? ??? common.resource # Browser setup/teardown ? ??? login_page.resource # Login locators and keywords ? ??? cart_page.resource # Cart locators ? ??? Libraries/ ? ??? InternalCalculations.py # Custom Python logic ? ??? Tests/ ? ??? smoke_tests.robot ? ??? regression_tests.robot ? ??? Results/ ??? Allure-Results/ # Standard Robot logs # For Allure reporting 
+
+
+
+code:
+*** Settings ***
+Library           SeleniumLibrary
+Resource          Resources/login_page.resource
+Suite Setup       Open Browser To Login Page
+Suite Teardown    Close Browser
+Test Setup        Set Test Documentation    Login and verify products page
+Test Teardown     Capture Page Screenshot On Failure
+Documentation     Allure Reporting Demo
+
+*** Variables ***
+${URL}            https://www.saucedemo.com
+${USERNAME}       standard_user
+${PASSWORD}       secret_sauce
+
+*** Keywords ***
+Open Browser To Login Page
+    Open Browser    ${URL}    chrome
+    Maximize Browser Window
+
+Capture Page Screenshot On Failure
+    Run Keyword If Test Failed    Capture Page Screenshot    failure_${TEST_NAME}_${/}${TIMESTAMP}.png
+
+Login And Verify
+    [Arguments]    ${username}    ${password}
+    Login To Application    ${username}    ${password}
+    Page Should Contain Element    xpath://span[text()='Products']
+
+*** Test Cases ***
+Login Smoke Test
+    [Tags]    Critical    Smoke    Regression
+    Login And Verify    ${USERNAME}    ${PASSWORD}
+
+Invalid Login Regression Test
+    [Tags]    Regression
+    Login To Application    invalid_user    wrong_pass
+    Page Should Contain    Epic sadface: Username and password do not match any user in this service
+
+output:
+==============================================================================
+Allure Reporting Demo
+==============================================================================
+Login Smoke Test                                                    | PASS |
+Invalid Login Regression Test                                        | PASS |
+------------------------------------------------------------------------------
+Allure Reporting Demo                                               | PASS |
+2 tests, 0 failures
+==============================================================================
+
+Allure results saved in: Allure-Results/
+To generate report: allure serve Allure-Results/

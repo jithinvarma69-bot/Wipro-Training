@@ -1,0 +1,9 @@
+gherkin-official
+behave
+selenium
+webdriver-manager
+allure-behave
+pytest
+openpyxl
+configparser
+

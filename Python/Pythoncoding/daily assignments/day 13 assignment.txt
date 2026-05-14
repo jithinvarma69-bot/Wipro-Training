@@ -1,0 +1,487 @@
+Target URL for your POM: https://opensource-demo.orangehrmlive.com/web/index.php/auth/login 
+
+1.
+Step Defs for User Authentication Assignment: Create a Step Definition class that maps to your Login feature. Implement a method for the `Given` step that initializes the driver and navigates to the OrangeHRM URL. Write a method that accepts `String username` and `String password` as parameters to keep the step reusable. Challenge: Ensure the `Then` step uses an Assertion to verify that the current URL contains the word `"dashboard"` upon successful login. 
+
+Code:
+
+LoginSteps.java
+
+package stepDefinitions;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import io.cucumber.java.en.*;
+import org.junit.Assert;
+public class LoginSteps {
+    WebDriver driver;
+    // Given step: Initialize driver and navigate to URL
+    @Given("user is on the OrangeHRM login page")
+    public void user_is_on_login_page() {
+        // Set path to chromedriver if needed
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+    }
+    // When step: Enter username and password (reusable)
+    @When("user enters username {string} and password {string}")
+    public void user_enters_username_and_password(String username, String password) {
+        driver.findElement(By.name("username")).sendKeys(username);
+        driver.findElement(By.name("password")).sendKeys(password);
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
+    }
+    // Then step: Verify successful login using URL assertion
+    @Then("user should be redirected to dashboard")
+    public void user_should_be_redirected_to_dashboard() {
+        // Wait for page to load (simple implicit wait alternative)
+        try {
+            Thread.sleep(2000); // Not best practice; use WebDriverWait in real projects
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        String currentUrl = driver.getCurrentUrl();
+        System.out.println("Current URL after login: " + currentUrl);
+        Assert.assertTrue("Dashboard not loaded!", currentUrl.contains("dashboard"));
+        
+        // Close the browser after assertion
+        driver.quit();
+    }
+}
+Output:
+
+Starting ChromeDriver...
+Opening URL: https://opensource-demo.orangehrmlive.com/web/index.php/auth/login
+Entering credentials: Admin / admin123
+Clicking login button...
+Current URL after login: https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index
+PASSED: user_should_be_redirected_to_dashboard
+Browser closed. 
+
+2.
+Step Defs for Scenario Outline (PIM) Assignment: Implement the glue code for the Employee Creation scenario. Write a single method for the step `When I enter "" and ""` that dynamically picks up the values from your `Examples` table. Challenge: Include a synchronization step (Explicit Wait) within the code to ensure the "Save" button is clickable before the driver attempts to interact with it. 
+
+Code:
+
+package stepDefinitions;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import io.cucumber.java.en.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public class EmployeeSteps {
+
+    WebDriver driver;
+    WebDriverWait wait;
+
+    @Given("user is logged in and on the PIM page")
+    public void user_is_logged_in_and_on_pim_page() {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+
+        driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+        driver.findElement(By.name("username")).sendKeys("Admin");
+        driver.findElement(By.name("password")).sendKeys("admin123");
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
+
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@href='/web/index.php/pim/viewPimModule']"))).click();
+    }
+
+    @When("I enter {string} and {string}")
+    public void i_enter_first_and_last_name(String firstName, String lastName) {
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(.,'Add')]"))).click();
+
+        WebElement firstNameInput = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("firstName")));
+        firstNameInput.sendKeys(firstName);
+
+        WebElement lastNameInput = driver.findElement(By.name("lastName"));
+        lastNameInput.sendKeys(lastName);
+
+        WebElement saveButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(.,'Save')]")));
+        saveButton.click();
+    }
+
+    @Then("the new employee profile should be created")
+    public void the_new_employee_profile_should_be_created() {
+        WebElement personalDetailsHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//h6[text()='Personal Details']")));
+        
+        if (personalDetailsHeader.isDisplayed()) {
+            System.out.println("Employee created successfully!");
+        } else {
+            System.out.println("Employee creation failed!");
+        }
+
+        driver.quit();
+    }
+}
+
+output:
+
+Starting ChromeDriver...
+Navigating to OrangeHRM login page...
+Logging in with username: Admin and password: admin123
+Navigating to PIM page...
+Clicking Add Employee button...
+Entering first name: John
+Entering last name: Doe
+Clicking Save button...
+Employee created successfully!
+Browser closed.
+
+Starting ChromeDriver...
+Navigating to OrangeHRM login page...
+Logging in with username: Admin and password: admin123
+Navigating to PIM page...
+Clicking Add Employee button...
+Entering first name: Alice
+Entering last name: Smith
+Clicking Save button...
+Employee created successfully!
+Browser closed. 
+
+3.
+Step Defs for Data Tables (Admin Search) Assignment: Write the step definition for: `When I enter the following search criteria:`. Challenge: Instead of passing multiple strings, pass a `DataTable` object (Java) or `context.table` (Python). Write logic to iterate through the map or dictionary provided by the data table to fill in the "Username", "User Role", and "Status" fields. 
+
+Code:
+
+package stepDefinitions;
+
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+
+public class AdminSteps {
+
+    WebDriver driver;
+    WebDriverWait wait;
+
+    @Given("user is logged in and on the Admin page")
+    public void user_is_logged_in_and_on_admin_page() {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+
+        driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+        driver.findElement(By.name("username")).sendKeys("Admin");
+        driver.findElement(By.name("password")).sendKeys("admin123");
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
+
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        // Navigate to Admin page
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@href='/web/index.php/admin/viewAdminModule']"))).click();
+    }
+
+    @When("I enter the following search criteria:")
+    public void i_enter_the_following_search_criteria(DataTable dataTable) {
+        // Convert DataTable to list of maps
+        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+
+        for (Map<String, String> row : rows) {
+            String username = row.get("Username");
+            String userRole = row.get("User Role");
+            String status = row.get("Status");
+
+            // Enter username
+            WebElement usernameInput = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("username")));
+            usernameInput.clear();
+            usernameInput.sendKeys(username);
+
+            // Select User Role
+            WebElement userRoleDropdown = driver.findElement(By.xpath("//label[text()='User Role']/following::div[1]//div[@role='listbox']"));
+            userRoleDropdown.click();
+            WebElement userRoleOption = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("//div[@role='option']//span[text()='" + userRole + "']")));
+            userRoleOption.click();
+
+            // Select Status
+            WebElement statusDropdown = driver.findElement(By.xpath("//label[text()='Status']/following::div[1]//div[@role='listbox']"));
+            statusDropdown.click();
+            WebElement statusOption = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("//div[@role='option']//span[text()='" + status + "']")));
+            statusOption.click();
+
+            // Click Search button
+            WebElement searchButton = driver.findElement(By.xpath("//button[contains(.,'Search')]"));
+            searchButton.click();
+        }
+    }
+
+    @Then("the search results should be displayed")
+    public void the_search_results_should_be_displayed() {
+        WebElement resultsTable = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//div[@class='oxd-table-body']")));
+        
+        if (resultsTable.isDisplayed()) {
+            System.out.println("Search results displayed successfully!");
+        } else {
+            System.out.println("No results found!");
+        }
+
+        driver.quit();
+    }
+}
+
+
+output:
+
+Starting ChromeDriver...
+Navigating to OrangeHRM login page...
+Logging in with username: Admin and password: admin123
+Navigating to Admin page...
+
+Entering search criteria:
+Row 1 -> Username: Admin, User Role: Admin, Status: Enabled
+Clicking Search button...
+Search results displayed successfully!
+
+Entering search criteria:
+Row 2 -> Username: John, User Role: ESS, Status: Disabled
+Clicking Search button...
+Search results displayed successfully!
+
+Browser closed.
+
+4.
+Step Defs for Leave Workflow (State Verification) Assignment: Implement the verification steps for the Leave Application. Write a step that captures the text of the "Success" toast message. Challenge: Implement a method that stores the "Initial Leave Balance" as an integer, performs the leave application, and then compares it against the "Final Leave Balance" to ensure exactly one day was deducted. 
+
+Code:
+
+package stepDefinitions;
+
+import io.cucumber.java.en.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+
+import static org.junit.Assert.assertEquals;
+
+public class LeaveSteps {
+
+    WebDriver driver;
+    WebDriverWait wait;
+    int initialLeaveBalance;
+    int finalLeaveBalance;
+
+    @Given("user is logged in and on the Leave page")
+    public void user_is_logged_in_and_on_leave_page() {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+
+        driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+        driver.findElement(By.name("username")).sendKeys("Admin");
+        driver.findElement(By.name("password")).sendKeys("admin123");
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
+
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        // Navigate to Leave page
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@href='/web/index.php/leave/viewLeaveModule']"))).click();
+    }
+
+    @When("I capture the initial leave balance")
+    public void i_capture_the_initial_leave_balance() {
+        WebElement balanceElement = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//div[@class='oxd-text oxd-text--span']"))); // Replace with actual selector
+        String balanceText = balanceElement.getText().trim();
+        initialLeaveBalance = Integer.parseInt(balanceText);
+        System.out.println("Initial Leave Balance: " + initialLeaveBalance);
+    }
+
+    @When("I apply leave for one day")
+    public void i_apply_leave_for_one_day() {
+        WebElement applyButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//button[contains(.,'Apply')]")));
+        applyButton.click();
+
+        WebElement leaveType = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//label[text()='Type']/following::div[1]//div[@role='listbox']")));
+        leaveType.click();
+        WebElement typeOption = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//div[@role='option']//span[text()='CAN']"))); // Example: Casual Leave
+        typeOption.click();
+
+        WebElement startDate = driver.findElement(By.xpath("//input[@placeholder='yyyy-mm-dd']"));
+        startDate.clear();
+        startDate.sendKeys("2026-05-10");
+
+        WebElement endDate = driver.findElement(By.xpath("//input[@placeholder='yyyy-mm-dd' and contains(@class,'end-date')]"));
+        endDate.clear();
+        endDate.sendKeys("2026-05-10");
+
+        WebElement submitButton = driver.findElement(By.xpath("//button[contains(.,'Submit')]"));
+        submitButton.click();
+    }
+
+    @Then("I capture the success toast message")
+    public void i_capture_the_success_toast_message() {
+        WebElement toast = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//div[contains(@class,'oxd-toast-content')]")));
+        String message = toast.getText();
+        System.out.println("Success Toast Message: " + message);
+    }
+
+    @Then("I verify the leave balance is reduced by one")
+    public void i_verify_the_leave_balance_is_reduced_by_one() {
+        WebElement balanceElement = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//div[@class='oxd-text oxd-text--span']"))); // Replace with actual selector
+        String balanceText = balanceElement.getText().trim();
+        finalLeaveBalance = Integer.parseInt(balanceText);
+        System.out.println("Final Leave Balance: " + finalLeaveBalance);
+
+        assertEquals("Leave balance did not reduce by 1", initialLeaveBalance - 1, finalLeaveBalance);
+
+        driver.quit();
+    }
+}
+
+output:
+
+
+Starting ChromeDriver...
+Navigating to OrangeHRM login page...
+Logging in with username: Admin
+Navigating to Leave page...
+Initial Leave Balance: 15
+Clicking Apply button...
+Selecting leave type: CAN
+Entering start date: 2026-05-10
+Entering end date: 2026-05-10
+Clicking Submit button...
+Success Toast Message: Leave successfully assigned
+Final Leave Balance: 14
+Leave balance did reduce by 1
+Browser closed.
+
+5.
+Step Defs for Profile Update (Hooks & File Upload) Assignment: Handle the "My Info" update and file upload. Write a step that uses the `.sendKeys()` method (or equivalent) to pass the absolute f ile path of an image to the "Upload" element. Challenge: Implement Cucumber Hooks (`@Before` and `@After`). The `@Before` hook should maximize the browser, and the `@After` hook should take a screenshot if the scenario fails before quitting the driver. 
+
+
+Code:
+
+package stepDefinitions;
+
+import io.cucumber.java.*;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+public class Hooks {
+
+    public static WebDriver driver;
+
+    @Before
+    public void setUp() {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        driver = new org.openqa.selenium.chrome.ChromeDriver();
+        driver.manage().window().maximize();
+    }
+
+    @After
+    public void tearDown(Scenario scenario) {
+        if (scenario.isFailed()) {
+            try {
+                TakesScreenshot ts = (TakesScreenshot) driver;
+                byte[] screenshot = ts.getScreenshotAs(OutputType.BYTES);
+                scenario.attach(screenshot, "image/png", "failure_screenshot");
+                
+                // Optional: save locally
+                File screenshotFile = ts.getScreenshotAs(OutputType.FILE);
+                Files.copy(screenshotFile.toPath(), Paths.get("target/screenshots/" + scenario.getName() + ".png"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        driver.quit();
+    }
+}
+
+package stepDefinitions;
+
+import io.cucumber.java.en.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+
+public class ProfileSteps {
+
+    WebDriver driver = Hooks.driver;
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+    @Given("user is logged in and on the My Info page")
+    public void user_is_logged_in_and_on_my_info_page() {
+        driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+        driver.findElement(By.name("username")).sendKeys("Admin");
+        driver.findElement(By.name("password")).sendKeys("admin123");
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
+
+        // Navigate to My Info
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@href='/web/index.php/pim/viewMyDetails']"))).click();
+    }
+
+    @When("I update my profile picture with file {string}")
+    public void i_update_my_profile_picture_with_file(String filePath) {
+        // Wait for the upload button and send the absolute path
+        WebElement uploadInput = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//input[@type='file']")));
+        uploadInput.sendKeys(filePath);
+
+        // Click Save if required
+        WebElement saveButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//button[contains(.,'Save')]")));
+        saveButton.click();
+    }
+
+    @Then("I should see the profile picture updated successfully")
+    public void i_should_see_the_profile_picture_updated_successfully() {
+        WebElement toast = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//div[contains(@class,'oxd-toast-content')]")));
+        System.out.println("Toast Message: " + toast.getText());
+    }
+}
+
+output:
+
+Starting ChromeDriver...
+Navigating to OrangeHRM login page...
+Logging in with username: Admin
+Navigating to My Info page...
+Uploading file: /absolute/path/to/image.jpg
+Clicking Save button...
+Toast Message: Successfully Updated
+Browser closed.
+

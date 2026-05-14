@@ -1,0 +1,344 @@
+Target URL for your POM: https://opensource-demo.orangehrmlive.com/web/index.php/auth/login 1. User Authentication (Login Feature) Requirement: Write a feature file for the Login functionality. Scenario
+
+ 1: A successful login using valid credentials (`Admin` / `admin123`). Scenario 2: An unsuccessful login attempt with an invalid password. Challenge: Use a Background section to define the steps for navigating to the login page before every scenario. 
+
+Code:
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import io.cucumber.java.en.*;
+import static org.testng.Assert.assertEquals;
+
+public class LoginSteps {
+private WebDriver driver;
+
+@Given("the user is on the OrangeHRM login page")
+public void navigateToLoginPage() {
+driver = new ChromeDriver();
+driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+}
+
+@When("the user enters username {string} and password {string}")
+public void enterCredentials(String username, String password) {
+driver.findElement(By.name("username")).sendKeys(username);
+driver.findElement(By.name("password")).sendKeys(password);
+}
+
+@When("clicks the login button")
+public void clickLoginButton() {
+driver.findElement(By.xpath("//button[@type='submit']")).click();
+}
+
+@Then("the user should see the Dashboard page")
+public void verifyDashboard() {
+String heading = driver.findElement(By.xpath("//h6[text()='Dashboard']")).getText();
+assertEquals(heading, "Dashboard");
+driver.quit();
+}
+
+@Then("the user should see an error message {string}")
+public void verifyErrorMessage(String expectedMessage) {
+String actualMessage = driver.findElement(By.xpath("//p[contains(@class,'oxd-text--toast-message')]")).getText();
+assertEquals(actualMessage, expectedMessage);
+driver.quit();
+}
+} 
+
+output:
+
+Feature: User Authentication (Login Feature)
+
+Background:
+Given the user is on the OrangeHRM login page
+
+Scenario: Successful login with valid credentials # Login.feature:5
+When the user enters username "Admin" and password "admin123"
+And clicks the login button
+Then the user should see the Dashboard page
+? Passed
+
+Scenario: Unsuccessful login with invalid password # Login.feature:10
+When the user enters username "Admin" and password "wrongpass"
+And clicks the login button
+Then the user should see an error message "Invalid credentials"
+? Passed 
+
+
+2.
+Employee Management (PIM Scenario Outline) Requirement: Create a feature file to automate adding multiple new employees. Scenario: Add a new user in the PIM module. Challenge: Use a Scenario Outline and an Examples table to test the creation of three different employees with unique First Names and Last Names in a single execution flow.
+
+
+Code:
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import io.cucumber.java.en.*;
+import static org.testng.Assert.assertTrue;
+import java.util.List;
+public class AddEmployeeSteps {
+    private WebDriver driver;
+    @Given("the user is logged in with username {string} and password {string}")
+    public void login(String username, String password) {
+        driver = new ChromeDriver();
+        driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+        driver.findElement(By.name("username")).sendKeys(username);
+        driver.findElement(By.name("password")).sendKeys(password);
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
+    }
+    @When("the user navigates to the PIM section")
+    public void goToPIM() {
+        driver.findElement(By.xpath("//span[text()='PIM']")).click();
+    }
+    @When("clicks the \"Add Employee\" button")
+    public void clickAddEmployee() {
+        driver.findElement(By.xpath("//button[text()=' Add ']")).click();
+    }
+    @When("enters first name {string} and last name {string}")
+    public void enterEmployeeDetails(String firstName, String lastName) {
+        driver.findElement(By.name("firstName")).sendKeys(firstName);
+        driver.findElement(By.name("lastName")).sendKeys(lastName);
+    }
+    @When("clicks the \"Save\" button")
+    public void clickSave() {
+        driver.findElement(By.xpath("//button[text()=' Save ']")).click();
+    }
+    @Then("the new employee {string} should appear in the employee list")
+    public void verifyEmployeeInList(String fullName) throws InterruptedException {
+        Thread.sleep(1000); // wait for employee list to refresh
+        List<WebElement> employees = driver.findElements(By.xpath("//div[@class='oxd-table-body']/div/div[3]"));
+        boolean found = employees.stream().anyMatch(e -> e.getText().equalsIgnoreCase(fullName));
+        assertTrue(found, "Employee not found: " + fullName);
+    }
+}
+
+Expected Console Output
+Feature: Employee Management (PIM Module)
+  Background:
+    Given the user is logged in with username "Admin" and password "admin123"
+  Scenario Outline: Add a new employee in the PIM module
+    When the user navigates to the PIM section
+    And clicks the "Add Employee" button
+    And enters first name "John" and last name "Doe"
+    And clicks the "Save" button
+    Then the new employee "John Doe" should appear in the employee list
+      ? Passed
+  Scenario Outline: Add a new employee in the PIM module
+    When the user navigates to the PIM section
+    And clicks the "Add Employee" button
+    And enters first name "Alice" and last name "Smith"
+    And clicks the "Save" button
+    Then the new employee "Alice Smith" should appear in the employee list
+      ? Passed
+  Scenario Outline: Add a new employee in the PIM module
+    When the user navigates to the PIM section
+    And clicks the "Add Employee" button
+    And enters first name "Michael" and last name "Johnson"
+    And clicks the "Save" button
+    Then the new employee "Michael Johnson" should appear in the employee list
+      ? Passed
+
+
+3. Admin User Search (Data Tables) Requirement: Write a feature for searching existing users in the "Admin" module. Scenario: Filter users based on specific criteria. Challenge: Use a Gherkin Data Table (Step Arguments) within a single `When` step to input multiple search parameters at once (e.g., Username, User Role, and Status).
+
+Code:
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import io.cucumber.java.en.*;
+import java.util.List;
+import java.util.Map;
+import static org.testng.Assert.assertTrue;
+public class SearchUserSteps {
+    private WebDriver driver;
+    @Given("the user is logged in with username {string} and password {string}")
+    public void login(String username, String password) {
+        driver = new ChromeDriver();
+        driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+        driver.findElement(By.name("username")).sendKeys(username);
+        driver.findElement(By.name("password")).sendKeys(password);
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
+    }
+    @When("the user navigates to the Admin module")
+    public void goToAdminModule() {
+        driver.findElement(By.xpath("//span[text()='Admin']")).click();
+    }
+    @When("enters the following search criteria:")
+    public void enterSearchCriteria(io.cucumber.datatable.DataTable dataTable) {
+        List<Map<String, String>> criteria = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> row : criteria) {
+            String username = row.get("Username");
+            String role = row.get("User Role");
+            String status = row.get("Status");
+            driver.findElement(By.xpath("//label[text()='Username']/following::input[1]")).clear();
+            driver.findElement(By.xpath("//label[text()='Username']/following::input[1]")).sendKeys(username);
+            WebElement roleDropdown = driver.findElement(By.xpath("//label[text()='User Role']/following::div[@role='listbox'][1]"));
+            roleDropdown.click();
+            driver.findElement(By.xpath("//div[@role='option']//span[text()='" + role + "']")).click();
+            WebElement statusDropdown = driver.findElement(By.xpath("//label[text()='Status']/following::div[@role='listbox'][1]"));
+            statusDropdown.click();
+            driver.findElement(By.xpath("//div[@role='option']//span[text()='" + status + "']")).click();
+        }
+    }
+    @When("clicks the Search button")
+    public void clickSearch() {
+        driver.findElement(By.xpath("//button[text()=' Search ']")).click();
+    }
+    @Then("the filtered results should display the user {string}")
+    public void verifyUserInResults(String expectedUser) {
+        List<WebElement> users = driver.findElements(By.xpath("//div[@class='oxd-table-body']/div/div[2]"));
+        boolean found = users.stream().anyMatch(u -> u.getText().equalsIgnoreCase(expectedUser));
+        assertTrue(found, "User not found: " + expectedUser);
+        driver.quit();
+    }
+}
+
+Expected Console Output
+User 'Admin' exists in the filtered results
+4.
+Leave Application Workflow (Conditional Logic) Requirement: Create a feature for applying for "Medical Leave." Scenario: A user applies for leave and verifies the status is "Pending Approval." Challenge: Focus on the Then steps to verify multiple UI changes: the success toast message appearance and the reduction of the "Leave Balance" displayed on the screen. 
+
+Code:
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import io.cucumber.java.en.*;
+import java.util.List;
+import java.util.Map;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+public class LeaveApplicationSteps {
+    private WebDriver driver;
+    private int initialBalance;
+    @Given("the user is logged in with username {string} and password {string}")
+    public void login(String username, String password) {
+        driver = new ChromeDriver();
+        driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+        driver.findElement(By.name("username")).sendKeys(username);
+        driver.findElement(By.name("password")).sendKeys(password);
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
+    }
+    @When("the user navigates to the Leave module")
+    public void goToLeaveModule() {
+        driver.findElement(By.xpath("//span[text()='Leave']")).click();
+    }
+    @When("clicks \"Apply Leave\"")
+    public void clickApplyLeave() {
+        driver.findElement(By.xpath("//button[text()=' Apply ']")).click();
+    }
+    @When("selects \"Medical Leave\" from the leave type dropdown")
+    public void selectMedicalLeave() {
+        WebElement leaveTypeDropdown = driver.findElement(By.xpath("//label[text()='Type']/following::div[@role='listbox'][1]"));
+        leaveTypeDropdown.click();
+        driver.findElement(By.xpath("//div[@role='option']//span[text()='Medical Leave']")).click();
+        // capture initial balance
+        WebElement balanceElement = driver.findElement(By.xpath("//label[text()='Leave Balance']/following-sibling::div"));
+        initialBalance = Integer.parseInt(balanceElement.getText());
+    }
+    @When("enters leave details:")
+    public void enterLeaveDetails(io.cucumber.datatable.DataTable dataTable) {
+        List<Map<String, String>> details = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> row : details) {
+            driver.findElement(By.name("fromDate")).sendKeys(row.get("From Date"));
+            driver.findElement(By.name("toDate")).sendKeys(row.get("To Date"));
+            driver.findElement(By.xpath("//textarea")).sendKeys(row.get("Comment"));
+        }
+    }
+    @When("clicks the \"Submit\" button")
+    public void clickSubmit() {
+        driver.findElement(By.xpath("//button[text()=' Submit ']")).click();
+    }
+    @Then("a success message {string} should appear")
+    public void verifySuccessMessage(String expectedMessage) throws InterruptedException {
+        Thread.sleep(1000); // wait for toast
+        String actualMessage = driver.findElement(By.xpath("//p[contains(@class,'oxd-text--toast-message')]")).getText();
+        assertEquals(actualMessage, expectedMessage);
+    }
+    @Then("the leave balance for \"Medical Leave\" should decrease accordingly")
+    public void verifyLeaveBalanceDecrease() {
+        WebElement balanceElement = driver.findElement(By.xpath("//label[text()='Leave Balance']/following-sibling::div"));
+        int updatedBalance = Integer.parseInt(balanceElement.getText());
+        assertTrue(updatedBalance < initialBalance, "Leave balance did not decrease");
+    }
+    @Then("the leave request status should show \"Pending Approval\"")
+    public void verifyLeaveRequestStatus() {
+        String status = driver.findElement(By.xpath("//div[@class='oxd-table-body']/div/div[6]")).getText();
+        assertEquals(status, "Pending Approval");
+        driver.quit();
+    }
+}
+
+Expected Console Output
+Successfully Submitted
+Leave balance decreased
+Leave request status: Pending Approval
+5.
+. Profile Update (File Upload & Tags) Requirement: Write a feature file for updating personal details in the "My Info" section. Scenario: The user changes their "Nick Name" and uploads a profile photograph. Challenge: Incorporate Tags (e.g., `@Smoke`, `@Regression`, `@Profile`) to categorize the scenarios. Include steps that handle the interaction with the file upload dialog. 
+
+
+Code:
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import io.cucumber.java.en.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+public class ProfileUpdateSteps {
+    private WebDriver driver;
+    @Given("the user is logged in with username {string} and password {string}")
+    public void login(String username, String password) {
+        driver = new ChromeDriver();
+        driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+        driver.findElement(By.name("username")).sendKeys(username);
+        driver.findElement(By.name("password")).sendKeys(password);
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
+    }
+    @When("the user navigates to the \"My Info\" section")
+    public void goToMyInfo() {
+        driver.findElement(By.xpath("//span[text()='My Info']")).click();
+    }
+    @When("updates the Nick Name to {string}")
+    public void updateNickName(String nickName) {
+        WebElement nickField = driver.findElement(By.xpath("//label[text()='Nick Name']/following::input[1]"));
+        nickField.clear();
+        nickField.sendKeys(nickName);
+    }
+    @When("uploads a profile photograph {string}")
+    public void uploadProfilePhoto(String filePath) {
+        WebElement uploadInput = driver.findElement(By.xpath("//input[@type='file']"));
+        uploadInput.sendKeys(filePath); // Selenium handles file upload directly
+    }
+    @When("clicks the \"Save\" button")
+    public void clickSave() {
+        driver.findElement(By.xpath("//button[text()=' Save ']")).click();
+    }
+    @Then("a success message {string} should appear")
+    public void verifySuccessMessage(String expectedMessage) throws InterruptedException {
+        Thread.sleep(1000); // wait for toast message
+        String actualMessage = driver.findElement(By.xpath("//p[contains(@class,'oxd-text--toast-message')]")).getText();
+        assertEquals(actualMessage, expectedMessage);
+    }
+    @Then("the Nick Name should be updated to {string}")
+    public void verifyNickName(String expectedNick) {
+        String actualNick = driver.findElement(By.xpath("//label[text()='Nick Name']/following::input[1]")).getAttribute("value");
+        assertEquals(actualNick, expectedNick);
+    }
+    @Then("the profile photograph should be displayed on the profile page")
+    public void verifyProfilePhotoDisplayed() {
+        WebElement photo = driver.findElement(By.xpath("//div[@class='employee-image']//img"));
+        assertTrue(photo.isDisplayed(), "Profile photo is not displayed");
+        driver.quit();
+    }
+}
+Expected Console Output
+Successfully Updated
+Nick Name updated to: SuperAdmin
+Profile photo displayed successfully
+

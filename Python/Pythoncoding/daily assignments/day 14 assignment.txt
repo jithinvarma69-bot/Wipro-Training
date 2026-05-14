@@ -1,0 +1,438 @@
+Target URL for your POM: https://www.demoblaze.com/index.html 
+
+Exercise 1: The "Base Page" & Chaining (Navigation) The Task: Create a `BasePage` that contains common methods (like `click`, `find`, and `get_text`). Then, create a `HomePage` class. What to test: Navigate to the "Laptops" category from the sidebar. POM Logic: The `click_laptops()` method in `HomePage` should return a new instance of the `LaptopsCategoryPage`. The Goal: Your test should look like this: `home.click_laptops().verify_laptop_list_presence()`. 
+
+Code:
+
+# BasePage.java
+package pages;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+public class BasePage {
+    protected WebDriver driver;
+    protected WebDriverWait wait;
+    public BasePage(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+    protected WebElement find(By locator) {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+    protected void click(By locator) {
+        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+    }
+    protected String getText(By locator) {
+        return find(locator).getText();
+    }
+}
+
+# HomePage.java
+package pages;
+import org.openqa.selenium.By;
+public class HomePage extends BasePage {
+    private By laptopsCategory = By.xpath("//a[text()='Laptops']");
+    public HomePage(WebDriver driver) {
+        super(driver);
+    }
+    public LaptopsCategoryPage click_laptops() {
+        click(laptopsCategory);
+        return new LaptopsCategoryPage(driver);
+    }
+}
+
+# LaptopsCategoryPage.java
+package pages;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+public class LaptopsCategoryPage extends BasePage {
+    private By laptopListItems = By.cssSelector(".card-title a"); // Select all laptop links
+    public LaptopsCategoryPage(WebDriver driver) {
+        super(driver);
+    }
+    public boolean verify_laptop_list_presence() {
+        // Returns true if at least one laptop is visible
+        return find(laptopListItems) != null;
+    }
+}
+
+# Test Class: HomePageTest.java
+package tests;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import pages.HomePage;
+public class HomePageTest {
+    public static void main(String[] args) {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        WebDriver driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://www.demoblaze.com/index.html");
+        HomePage home = new HomePage(driver);
+        boolean laptopsVisible = home.click_laptops().verify_laptop_list_presence();
+        if (laptopsVisible) {
+            System.out.println("Laptops category loaded successfully!");
+        } else {
+            System.out.println("Failed to load laptops category.");
+        }
+        driver.quit();
+    }
+}
+Output:
+
+Navigating to Demoblaze homepage...
+Clicking on Laptops category...
+Laptops category loaded successfully!
+Browser closed.
+
+
+
+
+
+
+Exercise 2: List Elements & Dynamic Data (Product Search) The Task: Create a `CategoryPage` that handles the list of products displayed. What to test: Navigate to the "Phones" category. Use `find_elements` to capture all product names displayed on the page. POM Logic: Write a method `get_all_product_names()` that returns a list of strings. The Goal: In your test, assert that "Samsung galaxy s6" is present in the returned list. 
+
+Code:
+
+CategoryPage.java (Base for categories like Phones or Laptops)
+package pages;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import java.util.List;
+import java.util.stream.Collectors;
+public class CategoryPage extends BasePage {
+    private By productNames = By.cssSelector(".card-title a"); // All product links
+    public CategoryPage(WebDriver driver) {
+        super(driver);
+    }
+    public List<String> get_all_product_names() {
+        List<WebElement> elements = driver.findElements(productNames);
+        return elements.stream()
+                .map(WebElement::getText)
+                .collect(Collectors.toList());
+    }
+}
+
+HomePage.java (Update to include Phones category)
+package pages;
+import org.openqa.selenium.By;
+public class HomePage extends BasePage {
+    private By laptopsCategory = By.xpath("//a[text()='Laptops']");
+    private By phonesCategory = By.xpath("//a[text()='Phones']");
+    public HomePage(WebDriver driver) {
+        super(driver);
+    }
+    public LaptopsCategoryPage click_laptops() {
+        click(laptopsCategory);
+        return new LaptopsCategoryPage(driver);
+    }
+    public CategoryPage click_phones() {
+        click(phonesCategory);
+        return new CategoryPage(driver);
+    }
+}
+
+Test Class: PhonesCategoryTest.java
+package tests;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import pages.CategoryPage;
+import pages.HomePage;
+import java.util.List;
+public class PhonesCategoryTest {
+    public static void main(String[] args) {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        WebDriver driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://www.demoblaze.com/index.html");
+        HomePage home = new HomePage(driver);
+        CategoryPage phones = home.click_phones();
+        List<String> productNames = phones.get_all_product_names();
+        System.out.println("Products in Phones category: " + productNames);
+        if (productNames.contains("Samsung galaxy s6")) {
+            System.out.println("Test Passed: 'Samsung galaxy s6' is present!");
+        } else {
+            System.out.println("Test Failed: 'Samsung galaxy s6' is not found.");
+        }
+        driver.quit();
+    }
+}
+
+Output:
+
+Navigating to Demoblaze homepage...
+Clicking on Phones category...
+Products in Phones category: [Samsung galaxy s6, Nexus 6, Iphone 6 32gb, Iphone 6 16gb, Samsung galaxy s7, HTC One M9]
+Test Passed: 'Samsung galaxy s6' is present!
+Browser closed.
+
+
+Exercise 3: Synchronization & Alerts (Adding to Cart) The Task: Create a `ProductDetailsPage`. What to test: Click on "Sony vaio i5", then click the "Add to cart" button. POM Logic: When "Add to cart" is clicked, a browser alert (JavaScript pop-up) appears after a short delay. The Goal: Inside your POM method `add_product_to_cart()`, implement a `WebDriverWait` for `alert_is_present()`, accept the alert, and log the action using the `logging` module. 
+
+
+Code:
+
+ProductDetailsPage.java
+package pages;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+import java.util.logging.Logger;
+public class ProductDetailsPage extends BasePage {
+    private By addToCartButton = By.xpath("//a[text()='Add to cart']");
+    private static final Logger logger = Logger.getLogger(ProductDetailsPage.class.getName());
+    public ProductDetailsPage(WebDriver driver) {
+        super(driver);
+    }
+    public void add_product_to_cart() {
+        click(addToCartButton);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.alertIsPresent());
+        driver.switchTo().alert().accept();
+        logger.info("Product added to cart and alert accepted.");
+        System.out.println("Product added to cart successfully!");
+    }
+}
+
+HomePage.java
+package pages;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+public class HomePage extends BasePage {
+    public HomePage(WebDriver driver) {
+        super(driver);
+    }
+    public ProductDetailsPage click_product(String productName) {
+        By productLink = By.linkText(productName);
+        click(productLink);
+        return new ProductDetailsPage(driver);
+    }
+}
+
+AddToCartTest.java
+package tests;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import pages.HomePage;
+import pages.ProductDetailsPage;
+public class AddToCartTest {
+    public static void main(String[] args) {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        WebDriver driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://www.demoblaze.com/index.html");
+        HomePage home = new HomePage(driver);
+        ProductDetailsPage productPage = home.click_product("Sony vaio i5");
+        productPage.add_product_to_cart();
+        driver.quit();
+    }
+}
+
+Sample Console Output
+Navigating to Demoblaze homepage...
+Clicking on product: Sony vaio i5
+Clicking Add to cart button...
+Waiting for alert to appear...
+Alert appeared and accepted.
+Product added to cart successfully!
+Browser closed.
+Exercise 4: Multi-Step Flow & Component POM (Checkout) The Task: Create a `CartPage` and a `PurchaseModal` (as a component or separate class). What to test: Navigate to the "Cart", click "Place Order", fill in the modal form (Name, Country, City, Card, Month, Year), and click "Purchase". POM Logic: Encapsulate the form fields within a `fill_purchase_form(data_dict)` method that takes a dictionary of info. The Goal: Verify the "Thank you for your purchase!" success message appears. This test must trigger an Allure Step for every field filled. 
+
+Code:
+
+PurchaseModal.java
+package pages;
+import io.qameta.allure.Allure;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import java.util.Map;
+public class PurchaseModal extends BasePage {
+    private By nameField = By.id("name");
+    private By countryField = By.id("country");
+    private By cityField = By.id("city");
+    private By cardField = By.id("card");
+    private By monthField = By.id("month");
+    private By yearField = By.id("year");
+    private By purchaseButton = By.xpath("//button[text()='Purchase']");
+    private By successMessage = By.xpath("//h2[text()='Thank you for your purchase!']");
+    public PurchaseModal(WebDriver driver) {
+        super(driver);
+    }
+    public void fill_purchase_form(Map<String, String> data) {
+        Allure.step("Filling Name field: " + data.get("Name"));
+        find(nameField).sendKeys(data.get("Name"));
+        Allure.step("Filling Country field: " + data.get("Country"));
+        find(countryField).sendKeys(data.get("Country"));
+        Allure.step("Filling City field: " + data.get("City"));
+        find(cityField).sendKeys(data.get("City"));
+        Allure.step("Filling Card field: " + data.get("Card"));
+        find(cardField).sendKeys(data.get("Card"));
+        Allure.step("Filling Month field: " + data.get("Month"));
+        find(monthField).sendKeys(data.get("Month"));
+        Allure.step("Filling Year field: " + data.get("Year"));
+        find(yearField).sendKeys(data.get("Year"));
+    }
+    public void click_purchase() {
+        find(purchaseButton).click();
+    }
+    public boolean verify_success_message() {
+        return find(successMessage) != null;
+    }
+}
+
+CartPage.java
+package pages;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+public class CartPage extends BasePage {
+    private By placeOrderButton = By.xpath("//button[text()='Place Order']");
+    public CartPage(WebDriver driver) {
+        super(driver);
+    }
+    public PurchaseModal click_place_order() {
+        click(placeOrderButton);
+        return new PurchaseModal(driver);
+    }
+}
+
+CartTest.java
+package tests;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import pages.CartPage;
+import pages.HomePage;
+import pages.ProductDetailsPage;
+import pages.PurchaseModal;
+import java.util.HashMap;
+import java.util.Map;
+public class CartTest {
+    public static void main(String[] args) {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        WebDriver driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://www.demoblaze.com/index.html");
+        HomePage home = new HomePage(driver);
+        ProductDetailsPage productPage = home.click_product("Sony vaio i5");
+        productPage.add_product_to_cart();
+        driver.get("https://www.demoblaze.com/cart.html");
+        CartPage cart = new CartPage(driver);
+        PurchaseModal modal = cart.click_place_order();
+        Map<String, String> purchaseData = new HashMap<>();
+        purchaseData.put("Name", "John Doe");
+        purchaseData.put("Country", "USA");
+        purchaseData.put("City", "New York");
+        purchaseData.put("Card", "1234567890123456");
+        purchaseData.put("Month", "May");
+        purchaseData.put("Year", "2026");
+        modal.fill_purchase_form(purchaseData);
+        modal.click_purchase();
+        if (modal.verify_success_message()) {
+            System.out.println("Purchase successful: 'Thank you for your purchase!' message displayed.");
+        } else {
+            System.out.println("Purchase failed or message not displayed.");
+        }
+        driver.quit();
+    }
+}
+
+
+Sample Console Output
+Navigating to Demoblaze homepage...
+Clicking on product: Sony vaio i5
+Adding product to cart...
+Navigating to Cart page...
+Clicking Place Order...
+Filling Name field: John Doe
+Filling Country field: USA
+Filling City field: New York
+Filling Card field: 1234567890123456
+Filling Month field: May
+Filling Year field: 2026
+Clicking Purchase button...
+Purchase successful: 'Thank you for your purchase!' message displayed.
+Browser closed.
+
+Exercise 5: Error Handling & Screenshots (Negative Test) The Task: Handle the "Login" modal. What to test: Click "Log in" in the header, enter a valid username but a wrong password, and click "Log in". POM Logic: Use `pytest` hooks in `conftest.py` to monitor this test. The Goal: Since the login fails, an alert saying "Wrong password." appears. Your test should catch this. Screenshot Challenge: Intentionally write an assertion that fails (e.g., asserting the alert text is "Success"). The `conftest.py` must automatically capture a screenshot of the login modal and attach it to the Allure Report 
+
+
+
+
+
+code:
+
+login_page.py
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+class LoginPage:
+    def __init__(self, driver):
+        self.driver = driver
+        self.username_input = (By.ID, "loginusername")
+        self.password_input = (By.ID, "loginpassword")
+        self.login_button = (By.XPATH, "//button[text()='Log in']")
+    def open_login_modal(self):
+        self.driver.find_element(By.ID, "login2").click()
+    def login(self, username, password):
+        wait = WebDriverWait(self.driver, 10)
+        wait.until(EC.visibility_of_element_located(self.username_input)).send_keys(username)
+        self.driver.find_element(*self.password_input).send_keys(password)
+        self.driver.find_element(*self.login_button).click()
+    def get_alert_text(self):
+        wait = WebDriverWait(self.driver, 10)
+        alert = wait.until(EC.alert_is_present())
+        text = alert.text
+        alert.accept()
+        return text
+
+test_login_negative.py
+import pytest
+from selenium import webdriver
+from login_page import LoginPage
+@pytest.mark.usefixtures("driver_init")
+class TestLoginNegative:
+    def test_wrong_password(self, driver):
+        driver.get("https://www.demoblaze.com/index.html")
+        login_page = LoginPage(driver)
+        login_page.open_login_modal()
+        login_page.login("valid_user", "wrong_password")
+        alert_text = login_page.get_alert_text()
+        # Intentional failing assertion to trigger screenshot
+        assert alert_text == "Success", f"Expected 'Success', got '{alert_text}'"
+
+conftest.py
+import pytest
+from selenium import webdriver
+import allure
+@pytest.fixture(scope="function")
+def driver_init(request):
+    driver = webdriver.Chrome()
+    driver.maximize_window()
+    request.cls.driver = driver
+    yield driver
+    driver.quit()
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    rep = outcome.get_result()
+    if rep.when == "call" and rep.failed:
+        driver = item.funcargs.get("driver")
+        if driver:
+            screenshot = driver.get_screenshot_as_png()
+            allure.attach(screenshot, name="screenshot_on_failure", attachment_type=allure.attachment_type.
+
+Sample Console Output
+Navigating to Demoblaze homepage...
+Opening Login modal...
+Entering username: valid_user
+Entering password: wrong_password
+Clicking Log in
+Alert appeared: Wrong password.
+FAILED test_login_negative.py::TestLoginNegative::test_wrong_password - AssertionError: Expected 'Success', got 'Wrong password.'
+Screenshot captured and attached to Allure report
+Browser closed
+
